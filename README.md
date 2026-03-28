@@ -1,8 +1,103 @@
-# RAG hỏi đáp văn học Việt Nam
+# 🚀 RAG hỏi đáp văn học Việt Nam
 
-Project này refactor lại notebook RAG thành cấu trúc module rõ ràng hơn để dễ đọc, dễ bảo trì và dễ trình bày trong báo cáo.
+Hệ thống hỏi đáp văn học Việt Nam sử dụng **Retrieval-Augmented Generation (RAG)**, được thiết kế nhằm nâng cao độ chính xác trong hỏi đáp bằng cách tích hợp cơ chế truy xuất ngữ cảnh với mô hình ngôn ngữ lớn, giúp đảm bảo câu trả lời luôn dựa trên nguồn dữ liệu đã được cung cấp.
 
-## Cấu trúc thư mục
+### 🌟 Tính năng nổi bật
+* **🔍 Tìm kiếm ngữ nghĩa (Semantic Search):**
+Sử dụng embedding + vector database (Chroma) để tìm đoạn văn liên quan thay vì chỉ match từ khóa.
+* **📚 Hỗ trợ nhiều tác phẩm văn học:**
+Có thể mở rộng dễ dàng với các tài liệu như truyện, ca dao, thơ,...
+* **🎯 Nhận diện tác phẩm trong câu hỏi:**
+Tự động phát hiện người dùng đang hỏi về tác phẩm nào để lọc kết quả chính xác hơn.
+* **🧠 Trả lời dựa trên ngữ cảnh (Context-aware QA):**
+Mô hình chỉ trả lời dựa trên dữ liệu đã retrieve, hạn chế hallucination.
+* **⚠️ Cơ chế fallback thông minh:**
+Nếu không đủ thông tin:
+Trả về thông báo chuẩn hoặc hiển thị đoạn liên quan (trong trường hợp phù hợp)
+* **🚫 Giảm nhiễu kết quả (Relevance Filtering):**
+Lọc các đoạn văn có độ liên quan thấp để tránh trả lời sai hoặc không liên quan.
+* **🧹 Xử lý dữ liệu tiếng Việt tốt hơn:**
+Chuẩn hóa Unicode, bỏ dấu khi cần, hỗ trợ match tên tác phẩm tiếng Việt.
+* **💬 Giao diện chat thân thiện (Gradio UI):**
+Dễ sử dụng, có sẵn câu hỏi mẫu, trải nghiệm giống chatbot thực tế.
+
+### 🛠 Tech Stack
+| Thành phần | Công nghệ | Vai trò |
+| :--- | :--- | :--- |
+| AI / LLM | Groq (LLaMA) | Sinh câu trả lời dựa trên context |
+Framework | LangChain | Xây dựng pipeline RAG, quản lý prompt & chain |
+Vector DB | ChromaDB | Lưu trữ embedding và truy vấn ngữ nghĩa |
+Embedding | HuggingFace | Chuyển văn bản thành vector |
+Backend	| Python | Ngôn ngữ chính của hệ thống |
+UI | Gradio | Giao diện chat cho người dùng |
+Config | dotenv (.env) | Quản lý API key và cấu hình |
+Data Processing | Regex, Unicode, Pathlib | Làm sạch và xử lý dữ liệu |
+### ⚙️ Luồng Hoạt Động
+
+Hệ thống hoạt động theo một luồng xử lý thông minh, bắt đầu từ câu hỏi của người dùng và kết thúc bằng câu trả lời do mô hình ngôn ngữ (LLM) tạo ra dựa trên dữ liệu truy xuất được.
+
+#### **1. Giao Diện Người Dùng**
+Người dùng nhập câu hỏi vào giao diện chat được xây dựng bằng Gradio.
+
+Hệ thống phân tích câu hỏi để xác định xem người dùng có đang hỏi về một tác phẩm cụ thể hay không.
+
+* Nếu có → ưu tiên tìm trong đúng tác phẩm đó
+* Nếu không → tìm trên toàn bộ dữ liệu
+#### **2. Truy Xuất Dữ Liệu (Retrieval)**
+* Câu hỏi được chuyển thành vector embedding
+* Hệ thống truy vấn ChromaDB (vector database)
+* Lấy ra các đoạn văn (chunk) có độ tương đồng cao nhất với câu hỏi.
+
+Ngoài ra:
+
+* Áp dụng lọc theo độ liên quan (relevance score)
+* Loại bỏ các đoạn trùng lặp
+#### **3. Tạo Ngữ Cảnh (Context Construction)**
+
+Các đoạn văn liên quan được:
+
+* Gắn metadata (tên tác phẩm, số trang)
+* Ghép lại thành một context hoàn chỉnh
+
+Context này sẽ được dùng làm nguồn tri thức cho LLM.
+
+#### **4. Sinh Câu Trả Lời (Generation)**
+
+Hệ thống:
+
+* Kết hợp câu hỏi + context
+* Đưa vào prompt template
+* Gửi đến mô hình LLM (Groq / LLaMA)
+
+LLM sẽ:
+
+* Phân tích ngữ cảnh
+* Sinh câu trả lời phù hợp
+* Không sử dụng kiến thức ngoài context
+#### **5. Cơ Chế Kiểm Soát (Fallback)**
+
+Nếu:
+
+* Không tìm thấy dữ liệu phù hợp\
+* Hoặc context không đủ để trả lời
+
+→ Hệ thống trả về:
+~~~
+Tôi không tìm thấy thông tin này trong tài liệu.
+~~~
+Trong một số trường hợp:
+
+* Có thể hiển thị thêm đoạn liên quan để người dùng tham khảo
+#### **6. Trả Kết Quả**
+
+Câu trả lời cuối cùng được hiển thị trên giao diện Gradio.
+
+Tùy trường hợp:
+
+* Chỉ hiển thị câu trả lời (khi chắc chắn)
+* Hoặc kèm theo: đoạn liên quan / nguồn trích dẫn
+
+### 📁 Cấu trúc thư mục
 
 ```text
 RAG/
@@ -42,111 +137,84 @@ RAG/
 │
 ├── tests/
 ├── notebooks/
-├── .env
-├── requirements.txt
+├── .env                      # lưu trữ API key quan trọng
+├── requirements.txt          # chứa các thư viện cần thiết để cài đặt
 └── README.md
 ```
-
-## Những gì đã tối ưu
-
-### 1. Tách notebook thành module rõ chức năng
-Notebook ban đầu có nhiều cell lặp và khó bảo trì. Bản này tách thành từng phần riêng:
-- ingest dữ liệu
-- embedding
-- retrieval
-- generation
-- pipeline
-- evaluation
-
-### 2. Không build lại DB mỗi lần mở app
-- `src/retrieval/indexer.py` chịu trách nhiệm build/load index
-- `src/app.py` chỉ load DB để chạy hỏi đáp
-
-### 3. Tối ưu chunk cho văn bản văn học
-Chunk được chia với separator thân thiện với đoạn văn tự nhiên, giữ ngữ nghĩa tốt hơn cho truy vấn kiểu tóm tắt, phân tích nhân vật, tìm chi tiết.
-
-### 4. Chuẩn hóa tiếng Việt và metadata
-Text được normalize Unicode, xóa khoảng trắng thừa và gắn metadata:
-- `source_file`
-- `source_name`
-- `source_slug`
-- `page_number`
-- `chunk_id`
-
-### 5. Lọc theo tên tác phẩm khi người dùng hỏi trực tiếp
-Nếu câu hỏi chứa tên như `Chí Phèo`, `Lão Hạc`, retriever sẽ ưu tiên lọc theo đúng tài liệu đó trước khi search.
-
-### 6. Giảm trùng lặp kết quả retrieve
-Retriever dùng `mmr` để top-k đa dạng hơn, bớt lặp chunk giống nhau.
-
-### 7. Prompt chặt để giảm hallucination
-Model chỉ được trả lời theo context đã retrieve. Không đủ dữ liệu thì trả về câu cố định.
-
-### 8. Có module evaluation để viết báo cáo dễ hơn
-`src/evaluation/evaluate.py` cho phép chạy một tập câu hỏi mẫu và thống kê đơn giản.
-
-## Note mô tả nhanh từng file
-
-- `src/ingest/loader.py`: đọc PDF/TXT và chuẩn hóa về `Document`.
-- `src/ingest/cleaner.py`: làm sạch text, chuẩn hóa tiếng Việt và slug.
-- `src/ingest/chunker.py`: chia chunk, loại chunk rỗng hoặc trùng.
-- `src/embedding/embedder.py`: tạo embedding model dùng chung.
-- `src/retrieval/indexer.py`: build/load vector store Chroma.
-- `src/retrieval/retriever.py`: truy xuất top-k và format context.
-- `src/generation/prompt.py`: định nghĩa system prompt và answer template.
-- `src/generation/generator.py`: gọi Groq LLM để tạo câu trả lời.
-- `src/pipeline/rag_pipeline.py`: pipeline hoàn chỉnh cho hệ thống RAG.
-- `src/evaluation/evaluate.py`: đánh giá thử nghiệm bằng danh sách query.
-- `src/utils/config.py`: đường dẫn, tên model, chunk size, retrieval k.
-- `src/utils/helpers.py`: save/load JSON, gom nguồn, kiểm tra dữ liệu.
-- `src/app.py`: giao diện Gradio.
-
-## Cách dùng
-
-### 1. Cài thư viện
-
+### 🚀 Hướng dẫn Cài đặt & Sử dụng
+#### **1. Clone dự án về máy**
+```bash
+git clone [https://github.com/your_username/RAG_pdf_txt.git]
+cd RAG_pdf_txt
+```
+#### **2. Cài đặt các thư viện cần thiết và môi trường**
+* Tạo môi trường ảo và kích hoạt nó
+```bash
+python -m venv venv
+# Trên Windows
+venv\Scripts\activate
+# Trên macOS/Linux
+source venv/bin/activate
+```
+* Cài đặt thư viện cần thiết từ file `requirements.txt`
 ```bash
 pip install -r requirements.txt
 ```
+#### **3. Cấu Hình API Key**
 
-### 2. Chuẩn bị dữ liệu
-Đặt file PDF vào thư mục:
+Dự án yêu cầu **API key** từ **Groq** để sử dụng mô hình ngôn ngữ lớn (**LLM**) trong hệ thống RAG.
 
-```text
-data/raw/
+Tạo một tệp `.env` ở thư mục gốc và thêm:
+
 ```
-
-Ví dụ:
-- `data/raw/Chí_Phèo.pdf`
-- `data/raw/Lão_Hạc.pdf`
-
-### 3. Tạo file `.env`
-
-```env
-GROQ_API_KEY=your_api_key
-GROQ_MODEL=llama-3.3-70b-versatile
-EMBEDDING_MODEL=sentence-transformers/paraphrase-multilingual-MiniLM-L12-v2
-CHUNK_SIZE=800
-CHUNK_OVERLAP=120
-RETRIEVER_K=6
-MMR_FETCH_K=20
+GROQ_API_KEY = "YOUR_API_KEY"
 ```
+Bạn có thể lấy **API key** tại [**Groq Console**](https://console.groq.com/keys).
 
-### 4. Build index
+#### **4. Chạy Ứng Dụng**
 
-```bash
+Sau khi đã cài đặt và cấu hình xong, thực hiện các bước sau để chạy hệ thống:
+
+**Bước 1:** Build vector database
+~~~
 python -m src.retrieval.indexer
-```
+~~~
+Bước này sẽ:
 
-### 5. Chạy app
+* Đọc dữ liệu từ `data/raw/`
+* Chia nhỏ (chunk)
+* Tạo embedding
+* Lưu vào `data/vector_store/`
 
-```bash
+**Bước 2:** Chạy ứng dụng
+~~~
 python -m src.app
-```
+~~~
 
-## Gợi ý mở rộng tiếp
-- thêm reranker
-- thêm hybrid search BM25 + dense
-- thêm memory hội thoại
-- thêm trích dẫn nguyên văn theo chunk
-- thêm bộ test câu hỏi đánh giá chính thức
+### ❓ Cấu trúc xử lý câu hỏi
+
+Hệ thống xử lý câu hỏi theo 3 trường hợp chính:
+
+#### 1. Có đủ ngữ cảnh và có thể suy luận ra đáp án
+
+Nếu các đoạn văn được truy xuất chứa đủ thông tin để mô hình hiểu và trả lời chắc chắn, hệ thống sẽ sinh ra câu trả lời trực tiếp dựa trên ngữ cảnh.
+
+#### 2. Có ngữ cảnh liên quan nhưng không đủ để kết luận chính xác
+
+Nếu hệ thống tìm được các đoạn văn liên quan, nhưng nội dung đó không chứa đáp án rõ ràng, mô hình sẽ không suy đoán thêm. Thay vào đó, hệ thống sẽ:
+
+* thông báo: Tôi không tìm thấy thông tin này trong tài liệu.
+* hiển thị đoạn liên quan để người dùng tự tham khảo
+
+3. Không có thông tin phù hợp trong tài liệu
+
+Nếu câu hỏi không liên quan đến dữ liệu trong hệ thống, hoặc không truy xuất được ngữ cảnh phù hợp, hệ thống sẽ trả về đúng thông báo:
+~~~
+Tôi không tìm thấy thông tin này trong tài liệu.
+~~~
+---
+### 📸 Demo
+
+![Demo RAG](./images/demo1.png)
+
+![Demo RAG](./images/demo2.png)
