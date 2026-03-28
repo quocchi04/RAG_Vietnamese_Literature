@@ -1,10 +1,3 @@
-"""
-Giao diện Gradio cho hệ thống hỏi đáp RAG.
-
-App này chỉ dùng để chat với vector store đã build sẵn.
-Không build lại index trong lúc chạy để tránh chậm và rối luồng xử lý.
-"""
-
 import gradio as gr
 
 from src.ingest.loader import load_documents
@@ -20,10 +13,10 @@ def build_app():
     rag = LiteratureRAGPipeline(vectorstore, available_sources)
 
     def chat(message, history):
-        _ = history
+        _ = history                         # không dùng lịch sử hội thoại, mỗi câu hỏi đều được xử lý độc lập
         response = rag.ask(message)
         return response.answer
-
+    # mẫu câu hỏi để người dùng dễ hình dung cách hỏi
     examples = [
         'Tóm tắt tác phẩm Chí Phèo.',
         'Lão Hạc có những phẩm chất gì?',
@@ -31,7 +24,7 @@ def build_app():
     ]
 
     return gr.ChatInterface(
-        fn=chat,
+        fn=chat,                            # mỗi lần nhập -> gọi hàm chat -> gọi RAG pipeline
         title=GRADIO_TITLE,
         description=GRADIO_DESCRIPTION,
         examples=examples,

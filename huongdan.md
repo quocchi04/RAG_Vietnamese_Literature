@@ -1,4 +1,5 @@
-1. Sơ đồ tổng quát
+# Sơ đồ cấu trúc hoạt động của project 
+### 1. Sơ đồ tổng quát
 ~~~
 Người dùng đặt câu hỏi
         │
@@ -30,9 +31,10 @@ Người dùng đặt câu hỏi
         ▼
 [7] Trả kết quả cho người dùng
 ~~~
+### Output:
 - câu trả lời
 - nguồn tham chiếu (nếu có)
-2. Sơ đồ đầy đủ từ lúc nạp dữ liệu đến lúc trả lời
+### 2. Sơ đồ đầy đủ từ lúc nạp dữ liệu đến lúc trả lời
 ~~~
                 ┌──────────────────────────┐
                 │   Dữ liệu gốc (PDF/TXT)  │
@@ -107,7 +109,7 @@ Người dùng đặt câu hỏi
                 │ Câu trả lời + nguồn      │
                 └──────────────────────────┘
   ~~~
-3. Sơ đồ theo đúng cấu trúc source bạn đang dùng
+### 3. Sơ đồ theo đúng cấu trúc source bạn đang dùng
 ~~~data/raw
    │
    ▼
@@ -145,39 +147,27 @@ src/pipeline/rag_pipeline.py       │
    ▼                               │
 src/app.py ◄───────────────────────┘
 ~~~
-4. Luồng xử lý chi tiết để bạn thuyết trình
-Giai đoạn 1: Xây dựng cơ sở tri thức
-Hệ thống nhận các file tác phẩm văn học như PDF, TXT.
+### 4. Luồng xử lý chi tiết
+* **Giai đoạn 1:** Xây dựng cơ sở tri thức
+Hệ thống nhận các file tác phẩm văn học như **PDF**, **TXT**.
 Dữ liệu được đọc và chuyển thành văn bản thô.
 Văn bản được làm sạch để loại bỏ nhiễu.
 Sau đó hệ thống chia văn bản thành nhiều đoạn nhỏ.
 Mỗi đoạn được chuyển thành vector embedding.
 Các vector này được lưu vào vector database để phục vụ tìm kiếm ngữ nghĩa.
-Giai đoạn 2: Hỏi đáp
+* **Giai đoạn 2:** Hỏi đáp
 Người dùng nhập câu hỏi.
 Hệ thống phân tích câu hỏi, có thể nhận diện tên tác phẩm.
 Retriever tìm những đoạn văn bản liên quan nhất trong vector store.
 Các đoạn này được đưa vào prompt làm ngữ cảnh.
 LLM dựa trên ngữ cảnh để sinh câu trả lời.
 Kết quả trả về cho người dùng là câu trả lời bám sát dữ liệu nguồn.
-5. Điểm tối ưu của sơ đồ này trong bài bạn
+### 5. Điểm tối ưu
 
-Bạn có thể nhấn mạnh 4 ý này khi báo cáo:
+* **Thứ nhất,** hệ thống không để LLM trả lời tự do hoàn toàn, mà bắt buộc dựa trên dữ liệu tác phẩm đã nạp.
 
-Thứ nhất, hệ thống không để LLM trả lời tự do hoàn toàn, mà bắt buộc dựa trên dữ liệu tác phẩm đã nạp.
+* **Thứ hai,** dữ liệu được chia chunk và embedding trước, nên tăng tốc độ truy xuất khi người dùng hỏi.
 
-Thứ hai, dữ liệu được chia chunk và embedding trước, nên tăng tốc độ truy xuất khi người dùng hỏi.
+* **Thứ ba,** hệ thống có thể lọc theo tên tác phẩm, giúp tăng độ chính xác khi câu hỏi liên quan đến một bài cụ thể.
 
-Thứ ba, hệ thống có thể lọc theo tên tác phẩm, giúp tăng độ chính xác khi câu hỏi liên quan đến một bài cụ thể.
-
-Thứ tư, vector search giúp tìm theo ngữ nghĩa chứ không chỉ theo từ khóa, phù hợp với câu hỏi phân tích văn học.
-
-6. Bản sơ đồ ngắn gọn để chèn báo cáo
-Dữ liệu gốc → Tiền xử lý → Chia đoạn → Tạo embedding → Lưu vector DB
-→ Người dùng hỏi → Truy xuất đoạn liên quan → Ghép prompt
-→ LLM sinh câu trả lời → Trả kết quả
-7. Mẫu mô tả ngắn dưới sơ đồ
-
-Bạn có thể chèn nguyên văn đoạn này vào báo cáo:
-
-Hệ thống RAG hoạt động theo hai giai đoạn chính. Ở giai đoạn đầu, dữ liệu văn bản như bài văn, ca dao và tác phẩm văn học được thu thập, làm sạch, chia thành các đoạn nhỏ và chuyển thành vector embedding để lưu vào vector database. Ở giai đoạn hai, khi người dùng đặt câu hỏi, hệ thống sẽ truy xuất các đoạn văn bản liên quan nhất từ cơ sở dữ liệu vector, sau đó đưa các đoạn này vào prompt và gửi đến mô hình ngôn ngữ lớn để sinh ra câu trả lời bám sát nội dung nguồn.
+* **Thứ tư,** vector search giúp tìm theo ngữ nghĩa chứ không chỉ theo từ khóa, phù hợp với câu hỏi phân tích văn học.

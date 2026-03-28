@@ -1,10 +1,3 @@
-"""
-Pipeline RAG hoàn chỉnh cho hệ thống hỏi đáp.
-
-Luồng xử lý:
-question -> retrieve -> format context -> generate -> gắn nguồn
-"""
-
 from __future__ import annotations
 
 from dataclasses import dataclass

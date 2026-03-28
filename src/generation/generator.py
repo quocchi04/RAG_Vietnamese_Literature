@@ -1,4 +1,4 @@
-from langchain_core.output_parsers import StrOutputParser
+from langchain_core.output_parsers import StrOutputParser       #chuyển output của LLM thành string thuần túy
 from langchain_core.prompts import ChatPromptTemplate
 from langchain_groq import ChatGroq
 
@@ -8,7 +8,7 @@ from src.utils.config import MODEL_NAME
 
 class AnswerGenerator:
     def __init__(self) -> None:
-        self.llm = ChatGroq(model=MODEL_NAME, temperature=0)
+        self.llm = ChatGroq(model=MODEL_NAME, temperature=0)    # trả lời chắc chắn, không suy đoán
         self.prompt = ChatPromptTemplate.from_messages(
             [
                 ('system', SYSTEM_PROMPT),
