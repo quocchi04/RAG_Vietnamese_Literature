@@ -376,7 +376,7 @@ def run_streamlit_app() -> None:
         if st.session_state.custom_pipeline is not None:
             st.success("Đang dùng tài liệu mẫu + file upload.")
         else:
-            st.info("Đang dùng 2 tài liệu mẫu mặc định.")
+            st.info("Đang dùng tài liệu mẫu mặc định.")
 
         uploaded_file = st.file_uploader(
             "Tải thêm PDF hoặc TXT",
@@ -465,7 +465,7 @@ def run_streamlit_app() -> None:
 
             if response and response.documents:
                 with st.expander('Xem các đoạn tài liệu đã truy xuất'):
-                    for i, doc in enumerate(response.documents, start=1):
+                    for i, doc in enumerate(response.documents[:3], start=1):
                         source = doc.metadata.get('source_name', 'Không rõ nguồn')
                         page = doc.metadata.get('page_number', '?')
                         st.markdown(f'**Đoạn {i}: {source} - trang {page}**')

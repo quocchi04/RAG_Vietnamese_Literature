@@ -10,7 +10,10 @@ from src.utils.helpers import summarize_sources
 
 # Xem câu hỏi có nhắc tới tên tác phẩm cụ thể không
 def detect_source_filter(question: str, available_sources: List[str]) -> Optional[str]:
-    normalized_question = normalize_for_match(question)     #chuẩn hóa câu hỏi
+    if len(available_sources) == 1:
+        return available_sources[0]
+
+    normalized_question = normalize_for_match(question)
     for source in available_sources:
         candidate = normalize_for_match(source).replace('_', ' ')
         if candidate in normalized_question:
