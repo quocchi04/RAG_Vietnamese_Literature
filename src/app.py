@@ -1,5 +1,13 @@
 from __future__ import annotations
 
+import sys
+from pathlib import Path
+
+# Đưa thư mục gốc project vào Python path để Streamlit Cloud import được package src
+PROJECT_ROOT = Path(__file__).resolve().parents[1]
+if str(PROJECT_ROOT) not in sys.path:
+    sys.path.insert(0, str(PROJECT_ROOT))
+
 from typing import List, Optional, Tuple
 
 from src.ingest.loader import load_documents
