@@ -1,25 +1,16 @@
 from __future__ import annotations
 
-import sys
-from pathlib import Path
-
-# Đưa thư mục gốc project vào Python path để Streamlit Cloud import được package src
-PROJECT_ROOT = Path(__file__).resolve().parents[1]
-if str(PROJECT_ROOT) not in sys.path:
-    sys.path.insert(0, str(PROJECT_ROOT))
-
 from typing import List, Optional, Tuple
 
 from src.ingest.loader import load_documents
-from src.ingest.chunker import split_documents
 from src.pipeline.rag_pipeline import LiteratureRAGPipeline, RAGResponse
-from src.retrieval.indexer import load_vector_store, build_vector_store
+from src.retrieval.indexer import load_vector_store
 from src.utils.config import GRADIO_DESCRIPTION, GRADIO_TITLE, GROQ_API_KEY
 
 EXAMPLES = [
-    'Tác phẩm Chí Phèo do ai sáng tác?',
+    'Tóm tắt tác phẩm Chí Phèo.',
     'Lão Hạc có những phẩm chất gì?',
-    'Chí Phèo là một người như thế nào?',
+    'Tác giả của Chí Phèo là ai?',
 ]
 
 
