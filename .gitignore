@@ -20,9 +20,9 @@ venv/
 .DS_Store
 Thumbs.db
 
-data/raw/
+
 data/processed/
-data/vector_store/
+
 
 chroma_db/
 
